@@ -47,6 +47,20 @@
 #include "tf2_eigen/tf2_eigen.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 
+
+#include <iostream>
+
+#define NODE_DEBUG 
+// ANSI color codes
+const std::string red("\033[1;31m");
+const std::string green("\033[1;32m");
+const std::string blue("\033[1;34m");
+const std::string yellow("\033[1;33m");
+const std::string magenta("\033[1;35m");
+const std::string cyan("\033[1;36m");
+const std::string reset_color("\033[0m");
+
+
 namespace cartographer_ros {
 
 namespace carto = ::cartographer;
@@ -394,6 +408,20 @@ Node::ComputeExpectedSensorIds(const TrajectoryOptions& options) const {
        ComputeRepeatedTopicNames(kPointCloud2Topic, options.num_point_clouds)) {
     expected_topics.insert(SensorId{SensorType::RANGE, topic});
   }
+
+#ifdef NODE_DEBUG    // Debugging output for use_imu_data
+  bool use_imu_data_2d = node_options_.map_builder_options.use_trajectory_builder_2d() &&
+                         options.trajectory_builder_options.trajectory_builder_2d_options()
+                             .use_imu_data();
+  bool use_imu_data_3d = node_options_.map_builder_options.use_trajectory_builder_3d();
+  
+  // print: Node::ComputeExpectedSensorIds use_imu_data_2d: true (use_imu_data = true)
+  // print: Node::ComputeExpectedSensorIds use_imu_data_2d: false(use_imu_data = false)
+  std::cout << cyan << "Node::ComputeExpectedSensorIds use_imu_data_2d: " << std::boolalpha << use_imu_data_2d << reset_color << std::endl;  //yes 
+  // print: Node::ComputeExpectedSensorIds use_imu_data_3d: false
+  std::cout << cyan << "Node::ComputeExpectedSensorIds use_imu_data_3d: " << std::boolalpha << use_imu_data_3d << reset_color << std::endl;  //yes
+#endif
+
   // For 2D SLAM, subscribe to the IMU if we expect it. For 3D SLAM, the IMU is
   // required.
   if (node_options_.map_builder_options.use_trajectory_builder_3d() ||
@@ -401,6 +429,11 @@ Node::ComputeExpectedSensorIds(const TrajectoryOptions& options) const {
        options.trajectory_builder_options.trajectory_builder_2d_options()
            .use_imu_data())) {
     expected_topics.insert(SensorId{SensorType::IMU, kImuTopic});
+#ifdef NODE_DEBUG 
+    //PRINT: Node: kImuTopic:imu (use_imu_data = true)
+    //PRINT: nothing (use_imu_data = false)
+    std::cout << cyan << "Node: kImuTopic:" << kImuTopic << reset_color << std::endl;
+#endif 
   }
   // Odometry is optional.
   if (options.use_odometry) {
@@ -472,7 +505,13 @@ void Node::LaunchSubscribers(const TrajectoryOptions& options,
                                                 trajectory_id, kImuTopic,
                                                 node_, this),
          kImuTopic});
+#ifdef NODE_DEBUG 
+    // PRINT: nothing (use_imu_data = false)
+    // PRINT: Node: LaunchSubscribers kImuTopic:imu, trajectory_id: 0 (use_imu_data = true)
+    std::cout << cyan << "Node: LaunchSubscribers kImuTopic:" << kImuTopic << ", trajectory_id: " << trajectory_id << reset_color << std::endl; 
+#endif
   }
+
 
   if (options.use_odometry) {
     subscribers_[trajectory_id].push_back(

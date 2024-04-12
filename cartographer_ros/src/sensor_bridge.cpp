@@ -20,6 +20,19 @@
 #include "cartographer_ros/msg_conversion.h"
 #include "cartographer_ros/time_conversion.h"
 
+
+#include <iostream>
+
+#define SENSOR_BRIDGE_DEBUG 
+// ANSI color codes
+const std::string red("\033[1;31m");
+const std::string green("\033[1;32m");
+const std::string blue("\033[1;34m");
+const std::string yellow("\033[1;33m");
+const std::string magenta("\033[1;35m");
+const std::string cyan("\033[1;36m");
+const std::string reset_color("\033[0m");
+
 namespace cartographer_ros {
 
 namespace carto = ::cartographer;
@@ -150,6 +163,16 @@ void SensorBridge::HandleImuMessage(const std::string& sensor_id,
         sensor_id,
         carto::sensor::ImuData{imu_data->time, imu_data->linear_acceleration,
                                imu_data->angular_velocity});
+#ifdef SENSOR_BRIDGE_DEBUG
+    // PRINT:  SensorBridge::HandleImuMessage IMU Linear Acc: x= ... (use_imu_data = true)                        
+    std::cout << magenta << "SensorBridge::HandleImuMessage IMU Linear Acc: x=" << imu_data->linear_acceleration.x()
+              << ", y=" << imu_data->linear_acceleration.y()
+              << ", z=" << imu_data->linear_acceleration.z() << reset_color <<std::endl;
+
+    std::cout << magenta << "SensorBridge::HandleImuMessage IMU Angular Vel: x=" << imu_data->angular_velocity.x()
+        << ", y=" << imu_data->angular_velocity.y()
+        << ", z=" << imu_data->angular_velocity.z() << reset_color <<std::endl;
+#endif
   }
 }
 

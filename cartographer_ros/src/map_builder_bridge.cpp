@@ -24,6 +24,18 @@
 #include "cartographer_ros_msgs/msg/status_code.hpp"
 #include "cartographer_ros_msgs/msg/status_response.hpp"
 
+#include <iostream>
+
+#define SENSOR_BRIDGE_DEBUG 
+// ANSI color codes
+const std::string red("\033[1;31m");
+const std::string green("\033[1;32m");
+const std::string blue("\033[1;34m");
+const std::string yellow("\033[1;33m");
+const std::string magenta("\033[1;35m");
+const std::string cyan("\033[1;36m");
+const std::string reset_color("\033[0m");
+
 namespace cartographer_ros {
 namespace {
 
@@ -133,6 +145,9 @@ int MapBuilderBridge::AddTrajectory(
                      InsertionResult>) {
         OnLocalSlamResult(trajectory_id, time, local_pose, range_data_in_local);
       });
+  #ifdef SENSOR_BRIDGE_DEBUG
+  std::cout << cyan << "Added trajectory with ID: '" << trajectory_id << "'." << reset_color << std::endl; // yes (use_imu_data = true)
+  #endif
   LOG(INFO) << "Added trajectory with ID '" << trajectory_id << "'.";
 
   // Make sure there is no trajectory with 'trajectory_id' yet.
