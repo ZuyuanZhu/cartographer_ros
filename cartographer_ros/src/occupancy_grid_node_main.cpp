@@ -204,6 +204,8 @@ int main(int argc, char** argv) {
   CHECK(FLAGS_include_frozen_submaps || FLAGS_include_unfrozen_submaps)
       << "Ignoring both frozen and unfrozen submaps makes no sense.";
 
+  FLAGS_include_frozen_submaps = true;
+  FLAGS_include_unfrozen_submaps = false;
   cartographer_ros::ScopedRosLogSink ros_log_sink;
   auto node = std::make_shared<cartographer_ros::Node>(FLAGS_resolution, FLAGS_publish_period_sec);
 
